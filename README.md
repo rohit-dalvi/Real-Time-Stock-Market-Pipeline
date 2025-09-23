@@ -4,8 +4,8 @@ A real-time stock market data pipeline using Snowflake, DBT, Docker, and Apache 
 ## Project Overview & Architecture:
 This project is my take on building an end-to-end data engineering pipeline for analyzing stock market data in real-time. The goal was to create something scalable, automated, and insightful—pulling live stock quotes, processing them through various stages, and ultimately visualizing key metrics. I designed it around a modern data stack that handles streaming data efficiently, inspired by the medallion architecture (bronze, silver, gold layers) for data quality and usability. 
 
-At a high level, the architecture looks like this:
-![image](https://github.com/user-attachments/assets/a170aa45-c999-4c04-a8b9-a2be026912cd)
+<img width="1134" height="590" alt="image" src="https://github.com/user-attachments/assets/4be195b2-1189-4ae3-bfd7-266a4d7a6835" />
+
 - **Data Source:** We start with fetching stock quotes from the Finnhub API for a list of popular symbols like AAPL, MSFT, etc.
 - **Streaming Layer:** Apache Kafka handles the real-time data ingestion, acting as a message broker to decouple producers and consumers.
 - **Storage Layer:** MinIO (an S3-compatible object store) serves as our data lake for raw files, making it easy to store JSON records without a schema upfront.
@@ -20,12 +20,12 @@ I chose this setup because it's cloud-agnostic where possible, cost-effective fo
 ## Key Objectives of the Project
 When I started this, I had a few main goals in mind to make it practical and educational:
 
-Real-Time Data Ingestion: Learn how to fetch and stream live data from an API without losing any updates. This teaches handling APIs, error resilience, and streaming patterns.
-Scalable Storage: Use a data lake approach with MinIO to store raw JSON files, simulating S3 in production. This objective was about understanding object storage and why it's better for unstructured data than traditional databases.
-Automated ETL Pipelines: Orchestrate data movement and transformation with Airflow and dbt, emphasizing workflow automation, scheduling (e.g., every minute), and version-controlled data models.
-Data Quality and Layering: Implement the medallion architecture—bronze for raw, silver for cleaned, gold for aggregated KPIs—to show how data evolves from messy to insightful.
-Visualization and Insights: Connect to Power BI to create dashboards, focusing on business value like tracking stock changes. This ties everything back to real-world use cases, like monitoring market trends.
-Containerized Deployment: Make it easy to run locally or deploy, teaching Docker basics and microservices.
+- **Real-Time Data Ingestion:** Learn how to fetch and stream live data from an API without losing any updates. This teaches handling APIs, error resilience, and streaming patterns.
+- **Scalable Storage:** Use a data lake approach with MinIO to store raw JSON files, simulating S3 in production. This objective was about understanding object storage and why it's better for unstructured data than traditional databases.
+- **Automated ETL Pipelines:** Orchestrate data movement and transformation with Airflow and dbt, emphasizing workflow automation, scheduling (e.g., every minute), and version-controlled data models.
+- **Data Quality and Layering:** Implement the medallion architecture—bronze for raw, silver for cleaned, gold for aggregated KPIs—to show how data evolves from messy to insightful.
+- **Visualization and Insights:** Connect to Power BI to create dashboards, focusing on business value like tracking stock changes. This ties everything back to real-world use cases, like monitoring market trends.
+- **Containerized Deployment:** Make it easy to run locally or deploy, teaching Docker basics and microservices.
 
 ## Overall Technology & Tool Used:
 To achieve the above objectives, this project leverages the following Azure services:
@@ -44,18 +44,19 @@ To achieve the above objectives, this project leverages the following Azure serv
 ### Step 1: Set Up Environment:
 - Edit producer.py and consumer.py with your Finnhub API key (get one free at finnhub.io) and MinIO password.
 - Update minio_to_snowflake.py with your Snowflake credentials (user, password, account, etc.).
-- Run docker-compose up -d to start all services. Check logs for errors
+- Run docker-compose up -d to start all services.
 
-![image](https://github.com/user-attachments/assets/38be04bc-0a43-4dab-a2d4-f9538aa17265)
+<img width="1107" height="890" alt="image" src="https://github.com/user-attachments/assets/4971ca2f-1d14-4379-913f-4defac964542" />
+<img width="1822" height="757" alt="image" src="https://github.com/user-attachments/assets/ae2fee14-3042-40cc-96c2-fb9852d64d16" />
+<img width="1600" height="553" alt="image" src="https://github.com/user-attachments/assets/203e60ff-a76f-42b8-a798-6d89f6d2dbdf" />
+
 
 ### Step 2: Data Ingestion with Producer:
 - The producer.py script fetches quotes every 6 seconds (to avoid API limits) using requests library.
 - It sends JSON data to Kafka topic "stock-quotes". Run it with python producer.py.
 
-![image](https://github.com/user-attachments/assets/4c1b3300-f211-4e4a-8ed1-e59aa6be1851)
 
 ### Step 3: Consuming and Storing Data:
-Create a Storage Account:
 - consumer.py listens to Kafka, saves each message as a JSON file in MinIO's "bronze-transactions" bucket.
 - Files are keyed like "symbol/timestamp.json" for organization. Run python consumer.py in another terminal.
 
@@ -64,19 +65,21 @@ Create a Storage Account:
 - It runs every minute: Downloads files from MinIO to local temp, uploads to Snowflake stage, then COPY INTO a raw table.
 - In Snowflake, create the table BRONZE_STOCK_QUOTES_RAW as variant type for JSON.
 
-![image](https://github.com/user-attachments/assets/40a00002-e0c0-4dfc-8581-818d9e087f8f)
+<img width="1107" height="890" alt="image" src="https://github.com/user-attachments/assets/76b7c09c-868a-431c-a34d-3b1033cead1d" />
+<img width="1384" height="675" alt="image" src="https://github.com/user-attachments/assets/4c6839e0-c805-4958-9996-28daa53f65b0" />
 
-### Step 5: Transforming Data with dbt:
+
+### Step 5: Transforming Data with dbt and snoflake notebooks:
 - Install dbt-snowflake: pip install dbt-snowflake.
 - Configure profiles.yml with Snowflake creds.
 - Models: bronze_stg_stock_quotes.sql parses JSON; silver_clean_stock_quotes.sql cleans and rounds; gold_kpi.sql gets latest KPIs.
-- Run dbt run to build tables. Use sources.yml for referencing.
-
-![image](https://github.com/user-attachments/assets/248437b0-ba71-4e10-bac6-140a784f80ec)
+- Hit dbt run to build tables. Use sources.yml for referencing.
 
 ### Step 6: Visualization:
-- In Power BI, connect to Snowflake, query the gold table.
-- Build dashboards for symbols, prices, changes. Export or share as needed.
+- In Power BI, connect to Snowflake, query the gold static and dynamic tables with direct query mode to fetch the latest data everytime.
+- Build dashboards for symbols, reviews,ratings, sector,sentiments and price changes respectively.
+<img width="1258" height="709" alt="image" src="https://github.com/user-attachments/assets/861843dd-fa75-425c-a899-495d389693ab" />
+
 
 ### Challenges Faced
 
