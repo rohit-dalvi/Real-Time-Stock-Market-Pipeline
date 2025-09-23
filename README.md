@@ -44,19 +44,20 @@ To achieve the above objectives, this project leverages the following tech stack
 - Update minio_to_snowflake.py with your Snowflake credentials (user, password, account, etc.).
 - Create a docker-compose.yml script by assigning dedicated ports and an environment that will spin up your resource in one command.
 - Run docker-compose up -d to start all services.
-
-<img width="1107" height="890" alt="image" src="https://github.com/user-attachments/assets/4971ca2f-1d14-4379-913f-4defac964542" />
-<img width="1822" height="757" alt="image" src="https://github.com/user-attachments/assets/ae2fee14-3042-40cc-96c2-fb9852d64d16" />
 <img width="1600" height="553" alt="image" src="https://github.com/user-attachments/assets/203e60ff-a76f-42b8-a798-6d89f6d2dbdf" />
-
 
 ### Step 2: Data Ingestion with Producer:
 - The producer.py script fetches quotes every 6 seconds (to avoid API limits) using the requests library.
+  <img width="1272" height="876" alt="image" src="https://github.com/user-attachments/assets/f4c4400a-9da1-4dd9-858d-6e06d0404fe6" />
+
 - It sends JSON data to the Kafka topic "stock-quotes". Run it with python producer.py.
+  <img width="1107" height="890" alt="image" src="https://github.com/user-attachments/assets/4971ca2f-1d14-4379-913f-4defac964542" />
 
 ### Step 3: Consuming and Storing Data:
 - consumer.py listens to Kafka, saves each message as a JSON file in MinIO's "bronze-transactions" bucket.
+  <img width="1822" height="757" alt="image" src="https://github.com/user-attachments/assets/ae2fee14-3042-40cc-96c2-fb9852d64d16" />
 - Files are keyed like "symbol/timestamp.json" for organization. Run python consumer.py in another terminal.
+<img width="1211" height="940" alt="image" src="https://github.com/user-attachments/assets/cae6c2f5-543c-44fc-a4dd-728495b66a83" />
 
 ### Step 4: Orchestrating with Airflow:
 - Access Airflow UI, enable the DAG "minio_to_snowflake_stream".
@@ -74,7 +75,7 @@ To achieve the above objectives, this project leverages the following tech stack
 
 ### Step 6: Visualization:
 - In Power BI, connect to Snowflake, query the gold static and dynamic tables with direct query mode to fetch the latest data every time.
-- Build dashboards for symbols, reviews, ratings, sector, sentiments, and price changes respectively.
+- Build dashboards for symbols, reviews, ratings, sector, sentiments, and price changes, respectively.
 <img width="1258" height="709" alt="image" src="https://github.com/user-attachments/assets/861843dd-fa75-425c-a899-495d389693ab" />
 
 ### Challenges Faced
