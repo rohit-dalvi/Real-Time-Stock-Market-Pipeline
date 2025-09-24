@@ -61,6 +61,7 @@ To achieve the above objectives, this project leverages the following tech stack
 
 ### Step 4: Orchestrating with Airflow:
 - Access Airflow UI, enable the DAG "minio_to_snowflake_stream".
+  <img width="1822" height="423" alt="Screenshot 2025-09-23 174705" src="https://github.com/user-attachments/assets/13687d6f-e1b5-4851-84e9-9edc55c42b0a" />
 - It runs every minute: Downloads files from MinIO to local temp, uploads to Snowflake stage, then COPY INTO a raw table.
 - In Snowflake, create the table BRONZE_STOCK_QUOTES_RAW as a variant type for JSON.
 <img width="1384" height="675" alt="image" src="https://github.com/user-attachments/assets/4c6839e0-c805-4958-9996-28daa53f65b0" />
